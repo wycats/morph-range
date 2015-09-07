@@ -4,7 +4,7 @@ import Morph from 'morph-range';
 
 //import { document, fragment, element, comment, domHelper } from 'support';
 
-import { domHelper, document, text } from 'support';
+import { domHelper, document, text, element } from 'support';
 
 QUnit.config.autostart = false;
 
@@ -32,7 +32,7 @@ function assertChildMorphs(assert, list, expectedMorphs) {
                          "expected " + current.label + "'s previous to be " + last.label);
     }
 
-    assert.ok(current.parentMorphList === list, "the morphs have the list as the parent");
+    assert.ok(current.parentMorph === list, "the morphs have the list as the parent");
 
     last = current;
     current = current.nextMorph;
@@ -56,50 +56,108 @@ function assertOrphanedMorphs(assert, expectedMorphs) {
 }
 
 function morph(label) {
-  var m = new Morph.empty(dom);
+  var el = element('p');
+  var m = new Morph(dom);
+  m.initForAppendingToElement(el);
   m.label = label;
   return m;
 }
 
 QUnit.test("can create a MorphList", function(assert) {
-  assert.strictEqual(list.mountedMorph, null);
+  assert.strictEqual(list.parentMorph, null);
   assert.strictEqual(list.firstChildMorph, null);
   assert.strictEqual(list.lastChildMorph, null);
 });
 
+function appendingMorph(parent, label) {
+  var morph = new Morph(dom);
+  morph.initForAppendingToMorph(parent);
+  morph.label = label;
+  return morph;
+}
+
+function topLevelMorphWithList() {
+  var el = element('p');
+  var m1 = new Morph(dom);
+  m1.initForAppendingToElement(el);
+  m1.label = 'top';
+  m1.setMorphList(list);
+  return m1;
+}
+
 QUnit.test("can append a Morph into a MorphList using insertBefore", function(assert) {
-  var morph1 = morph("morph1");
+  var m1 = topLevelMorphWithList();
 
-  list.insertBeforeMorph(morph1, null);
+  var m2 = appendingMorph(m1, 'morph2');
+  var m3 = appendingMorph(m1, 'morph3');
 
+  list.insertBeforeMorph(m2, null);
+  list.insertBeforeMorph(m3, null);
 
-  assertChildMorphs(assert, list, [ morph1 ]);
+  assertChildMorphs(assert, list, [ m2, m3 ]);
+
+  m3.finishAppend();
+  m2.finishAppend();
+  list.finishAppend();
+  m1.finishAppend();
+
+  assert.equal(m1.firstNode, m2.firstNode, "firstNode has synced");
+  assert.equal(m1.lastNode, m3.lastNode, "lastNode has synced");
 });
 
 QUnit.test("can prepend a Morph into a MorphList", function(assert) {
-  var morph2 = morph("morph2");
-  var morph1 = morph("morph1");
+  var m1 = topLevelMorphWithList();
 
-  list.appendMorph(morph2);
-  list.insertBeforeMorph(morph1, morph2);
+  var m3 = appendingMorph(m1, 'morph3');
 
-  // TODO Deal with DOM
+  list.appendMorph(m3);
 
-  assertChildMorphs(assert, list, [ morph1, morph2 ]);
+  m3.finishAppend();
+  list.finishAppend();
+  m1.finishAppend();
+
+  list.beginMove();
+  var m2 = appendingMorph(m1, 'morph2');
+  m2.prepareForInsertingBeforeMorph(m3); // append fast path
+  list.insertBeforeMorph(m2, m3);
+  m2.finishAppend();
+  list.finishMove();
+
+  assertChildMorphs(assert, list, [ m2, m3 ]);
+
+  assert.equal(m1.firstNode, m2.firstNode, "firstNode has synced");
+  assert.equal(m1.lastNode, m3.lastNode, "lastNode has synced");
 });
 
 QUnit.test("can insert a Morph into the middle of a MorphList", function(assert) {
-  var morph3 = morph("morph3");
-  var morph2 = morph("morph2");
-  var morph1 = morph("morph1");
+  var root = topLevelMorphWithList();
 
-  list.appendMorph(morph1);
-  list.appendMorph(morph3);
-  list.insertBeforeMorph(morph2, morph3);
+  var m3 = appendingMorph(root, 'morph3');
+  var m1 = appendingMorph(root, 'morph1');
 
-  // TODO Deal with DOM
+  list.appendMorph(m1);
+  m1.finishAppend();
 
-  assertChildMorphs(assert, list, [ morph1, morph2, morph3 ]);
+  list.appendMorph(m3);
+  m3.finishAppend();
+
+  list.finishAppend();
+  root.finishAppend();
+
+  assert.equal(root.firstNode, m1.firstNode, "firstNode has synced");
+  assert.equal(root.lastNode, m3.lastNode, "lastNode has synced");
+
+  list.beginMove();
+  var m2 = appendingMorph(root, 'morph2');
+  m2.prepareForInsertingBeforeMorph(m3); // append fast path
+  list.insertBeforeMorph(m2, m3);
+  m2.finishAppend();
+  list.finishMove();
+
+  assertChildMorphs(assert, list, [ m1, m2, m3 ]);
+
+  assert.equal(root.firstNode, m1.firstNode, "firstNode hasn't changed");
+  assert.equal(root.lastNode, m3.lastNode, "lastNode hasn't changed");
 });
 
 QUnit.test("can move a morph from one list to another", function(assert) {

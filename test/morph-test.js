@@ -46,6 +46,18 @@ QUnit.test('can setContent of a morph', function (assert) {
   assert.equalHTML(el, '<div>\n<p>before  after</p>\n</div>', 'setting to empty');
 });
 
+QUnit.test("Appending to a morph not in DOM", function(assert) {
+  var dom = domHelper();
+  var morph = new Morph(dom);
+  var frag = fragment();
+
+  morph.setAppendPoint(frag, null);
+
+  morph.appendNode(element('p'));
+
+  assert.equalHTML(frag, '<p></p>');
+});
+
 QUnit.test("When destroying a morph, do not explode if a parentMorph does not exist", function(assert) {
   var dom = domHelper();
   var morph = new Morph(dom);
@@ -65,3 +77,4 @@ QUnit.test("When destroying a morph, do not explode if a parentNode does not exi
   morph.destroy();
   assert.ok(true, "The test did not crash");
 });
+
