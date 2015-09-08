@@ -1,9 +1,15 @@
 import QUnit from 'qunitjs';
 import Morph from 'morph-range';
 
-import { document, fragment, element, comment, domHelper } from 'support';
+import { document, /* fragment, */ element, text, domHelper } from 'support';
 
-QUnit.module('Morph tests');
+var root;
+
+QUnit.module('Morph tests', {
+  setup: function() {
+    root = element("p", "before ");
+  }
+});
 
 QUnit.test('can construct a Morph', function (assert) {
   var m = new Morph(domHelper());
@@ -12,56 +18,45 @@ QUnit.test('can construct a Morph', function (assert) {
 
 QUnit.test('can setContent of a morph', function (assert) {
   var morph = new Morph(domHelper());
+  morph.initForAppendingToElement(root);
+  morph.finishAppend();
+  root.appendChild(text(' after'));
 
-  var insertion = comment();
+  assert.equalHTML(root, '<p>before <!----> after</p>', 'sanity check');
 
-  morph.setContent(insertion);
-
-  var frag = fragment(
-    element('p', 'before ', insertion, ' after')
-  );
+  morph.clearForRender();
 
   morph.setContent('Hello World');
-
-  assert.equalHTML(frag, '<p>before Hello World after</p>', 'it updated');
+  assert.equalHTML(root, '<p>before Hello World after</p>', 'it updated');
 
   morph.clear();
+  assert.equalHTML(root, '<p>before <!----> after</p>', 'clear');
 
-  assert.equalHTML(frag, '<p>before <!----> after</p>', 'clear');
-
-  frag = fragment(frag);
-
-  morph.setContent('Another test...');
-
-  assert.equalHTML(frag, '<p>before Another test... after</p>', 'works after appending to a fragment');
-
-  var el = element('div', '\n', frag, '\n');
+  var el = element('div', '\n', root, '\n');
 
   morph.setContent('Again');
 
   assert.equalHTML(el, '<div>\n<p>before Again after</p>\n</div>', 'works after appending to an element');
 
   morph.setContent('');
-
   assert.equalHTML(el, '<div>\n<p>before  after</p>\n</div>', 'setting to empty');
 });
 
-QUnit.test("Appending to a morph not in DOM", function(assert) {
+QUnit.test("Appending to a BLANK morph", function(assert) {
   var dom = domHelper();
-  var morph = new Morph(dom);
-  var frag = fragment();
-
-  morph.setAppendPoint(frag, null);
-
-  morph.appendNode(element('p'));
-
-  assert.equalHTML(frag, '<p></p>');
+  var morph = new Morph(dom).initForAppendingToElement(root);
+  assert.equalHTML(root, '<p>before </p>');
+  morph.appendNode(element('span'));
+  assert.equalHTML(root, '<p>before <span></span></p>');
+  morph.finishAppend();
+  root.appendChild(text(' world'));
+  assert.equalHTML(root, '<p>before <span></span> world</p>');
 });
 
 QUnit.test("When destroying a morph, do not explode if a parentMorph does not exist", function(assert) {
   var dom = domHelper();
-  var morph = new Morph(dom);
-  morph.clear();
+  var morph = new Morph(dom).initForAppendingToElement(root);
+  morph.finishAppend();
 
   var morphFrag = document.createDocumentFragment();
   morphFrag.appendChild(morph.firstNode);
