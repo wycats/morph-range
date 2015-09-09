@@ -19,15 +19,15 @@ QUnit.test('can construct a Morph', function (assert) {
 QUnit.test('can setContent of a morph', function (assert) {
   var morph = new Morph(domHelper());
   morph.initForAppendingToElement(root);
-  morph.finishAppend();
+  morph.commit();
   root.appendChild(text(' after'));
 
   assert.equalHTML(root, '<p>before <!----> after</p>', 'sanity check');
 
-  morph.expectUpdate();
+  morph.begin();
   morph.clearForRender();
   morph.setContent('Hello World');
-  morph.finishAppend();
+  morph.commit();
 
   assert.equalHTML(root, '<p>before Hello World after</p>', 'it updated');
 
@@ -50,7 +50,7 @@ QUnit.test("Appending to a BLANK morph", function(assert) {
   assert.equalHTML(root, '<p>before </p>');
   morph.appendNode(element('span'));
   assert.equalHTML(root, '<p>before <span></span></p>');
-  morph.finishAppend();
+  morph.commit();
   root.appendChild(text(' world'));
   assert.equalHTML(root, '<p>before <span></span> world</p>');
 });
@@ -58,7 +58,7 @@ QUnit.test("Appending to a BLANK morph", function(assert) {
 QUnit.test("When destroying a morph, do not explode if a parentMorph does not exist", function(assert) {
   var dom = domHelper();
   var morph = new Morph(dom).initForAppendingToElement(root);
-  morph.finishAppend();
+  morph.commit();
 
   var morphFrag = document.createDocumentFragment();
   morphFrag.appendChild(morph.firstNode);

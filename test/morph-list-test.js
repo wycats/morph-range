@@ -105,10 +105,10 @@ QUnit.test("can append a Morph into a MorphList using insertBefore", function(as
 
   assertChildMorphs(assert, list, [ m2, m3 ]);
 
-  m3.finishAppend();
-  m2.finishAppend();
-  list.finishAppend();
-  root.finishAppend();
+  m3.commit();
+  m2.commit();
+  list.commit();
+  root.commit();
 
   assert.equal(root.firstNode, m2.firstNode, "firstNode has synced");
   assert.equal(root.lastNode, m3.lastNode, "lastNode has synced");
@@ -119,15 +119,15 @@ QUnit.test("can prepend a Morph into a MorphList", function(assert) {
 
   list.appendMorph(m3);
 
-  m3.finishAppend();
-  list.finishAppend();
-  root.finishAppend();
+  m3.commit();
+  list.commit();
+  root.commit();
 
   list.beginMove();
   var m2 = morph('morph2').initForAppendingToList(list);
   list.insertBeforeMorph(m2, m3);
   m2.appendNode(text("hello"));
-  m2.finishAppend();
+  m2.commit();
   list.finishMove();
 
   assertChildMorphs(assert, list, [ m2, m3 ]);
@@ -143,13 +143,13 @@ QUnit.test("can insert a Morph into the middle of a MorphList", function(assert)
   var m1 = appendingMorph(root, 'morph1');
 
   list.appendMorph(m1);
-  m1.finishAppend();
+  m1.commit();
 
   list.appendMorph(m3);
-  m3.finishAppend();
+  m3.commit();
 
-  list.finishAppend();
-  root.finishAppend();
+  list.commit();
+  root.commit();
 
   assert.equal(root.firstNode, m1.firstNode, "firstNode has synced");
   assert.equal(root.lastNode, m3.lastNode, "lastNode has synced");
@@ -157,7 +157,7 @@ QUnit.test("can insert a Morph into the middle of a MorphList", function(assert)
   list.beginMove();
   var m2 = morph('morph2').initForAppendingToList(list);
   list.insertBeforeMorph(m2, m3);
-  m2.finishAppend();
+  m2.commit();
   list.finishMove();
 
   assertChildMorphs(assert, list, [ m1, m2, m3 ]);
@@ -170,9 +170,9 @@ QUnit.test("can remove the only morph in a MorphList", function(assert) {
   var morph1 = appendingMorph(root, "morph1");
 
   list.appendMorph(morph1);
-  morph1.finishAppend();
-  list.finishAppend();
-  root.finishAppend();
+  morph1.commit();
+  list.commit();
+  root.commit();
 
   list.beginMove();
   list.removeChildMorph(morph1);
@@ -186,14 +186,14 @@ QUnit.test("can remove the first morph in a MorphList", function(assert) {
   var morph1 = appendingMorph(root, "morph1");
 
   list.appendMorph(morph1);
-  morph1.finishAppend();
-  list.finishAppend();
-  root.finishAppend();
+  morph1.commit();
+  list.commit();
+  root.commit();
 
   list.beginMove();
   var morph2 = appendingMorph(root, "morph2");
   list.appendMorph(morph2);
-  morph2.finishAppend();
+  morph2.commit();
   list.removeChildMorph(morph1);
   list.finishMove();
 
@@ -206,11 +206,11 @@ QUnit.test("can remove the last morph in a MorphList", function(assert) {
   var morph2 = appendingMorph(root, "morph2");
 
   list.appendMorph(morph1);
-  morph1.finishAppend();
+  morph1.commit();
   list.appendMorph(morph2);
-  morph2.finishAppend();
-  list.finishAppend();
-  root.finishAppend();
+  morph2.commit();
+  list.commit();
+  root.commit();
 
   list.beginMove();
   list.removeChildMorph(morph2);
@@ -223,18 +223,18 @@ QUnit.test("can remove the last morph in a MorphList", function(assert) {
 QUnit.test("can remove a middle morph in a MorphList", function(assert) {
   var morph1 = appendingMorph(root, "morph1");
   list.appendMorph(morph1);
-  morph1.finishAppend();
+  morph1.commit();
 
   var morph2 = appendingMorph(root, "morph2");
   list.appendMorph(morph2);
-  morph2.finishAppend();
+  morph2.commit();
 
   var morph3 = appendingMorph(root, "morph3");
   list.appendMorph(morph3);
-  morph3.finishAppend();
+  morph3.commit();
 
-  list.finishAppend();
-  root.finishAppend();
+  list.commit();
+  root.commit();
 
   list.beginMove();
   list.removeChildMorph(morph2);
@@ -247,9 +247,9 @@ QUnit.test("can remove a middle morph in a MorphList", function(assert) {
 QUnit.test("can clear the only morph in a MorphList", function(assert) {
   var morph1 = appendingMorph(root, "morph1");
   list.appendMorph(morph1);
-  morph1.finishAppend();
-  list.finishAppend();
-  root.finishAppend();
+  morph1.commit();
+  list.commit();
+  root.commit();
 
   list.clear();
 
@@ -259,14 +259,14 @@ QUnit.test("can clear the only morph in a MorphList", function(assert) {
 QUnit.test("can clear two morphs in a MorphList", function(assert) {
   var morph1 = appendingMorph(root, "morph1");
   list.appendMorph(morph1);
-  morph1.finishAppend();
+  morph1.commit();
 
   var morph2 = appendingMorph(root, "morph2");
   list.appendMorph(morph2);
-  morph2.finishAppend();
+  morph2.commit();
 
-  list.finishAppend();
-  root.finishAppend();
+  list.commit();
+  root.commit();
 
   list.clear();
 
@@ -276,18 +276,18 @@ QUnit.test("can clear two morphs in a MorphList", function(assert) {
 QUnit.test("can remove three morphs in a MorphList", function(assert) {
   var morph1 = appendingMorph(root, "morph1");
   list.appendMorph(morph1);
-  morph1.finishAppend();
+  morph1.commit();
 
   var morph2 = appendingMorph(root, "morph2");
   list.appendMorph(morph2);
-  morph2.finishAppend();
+  morph2.commit();
 
   var morph3 = appendingMorph(root, "morph3");
   list.appendMorph(morph3);
-  morph3.finishAppend();
+  morph3.commit();
 
-  list.finishAppend();
-  root.finishAppend();
+  list.commit();
+  root.commit();
 
   list.clear();
 
@@ -329,7 +329,7 @@ QUnit.test("appending a morph updates the DOM representation", function(assert) 
 
   list.appendMorph(morph1);
   morph1.setNode(text("hello"));
-  morph1.finishAppend();
+  morph1.commit();
 
   assert.equalHTML(rootElement, "<p>hello</p>");
 
@@ -337,10 +337,10 @@ QUnit.test("appending a morph updates the DOM representation", function(assert) 
 
   list.appendMorph(morph2);
   morph2.setNode(text(" world"));
-  morph2.finishAppend();
+  morph2.commit();
 
-  list.finishAppend();
-  root.finishAppend();
+  list.commit();
+  root.commit();
   assertInvariants(assert); // invariants are guaranteed after transaction is complete
 
   assert.equalHTML(rootElement, "<p>hello world</p>");
@@ -357,14 +357,14 @@ QUnit.test("prepending a morph updates the DOM representation", function(assert)
   morph1.setNode(text("world"));
 
   // finish appending the morph; sets the morph's firstNode and lastNode
-  morph1.finishAppend();
+  morph1.commit();
 
   // sanity check the HTML
   assert.equalHTML(rootElement, "<p>world</p>");
 
   // finalize the list and root, which sets the firstNode and lastNode
-  list.finishAppend();
-  root.finishAppend();
+  list.commit();
+  root.commit();
 
   // ensure that the firstNode and lastNode of root and list are what we expect
   assertInvariants(assert);
@@ -386,7 +386,7 @@ QUnit.test("prepending a morph updates the DOM representation", function(assert)
   morph2.setNode(text("hello "));
 
   // finalize the morph, transitioning it into ATTACHED
-  morph2.finishAppend();
+  morph2.commit();
 
   // finish the move transaction, transitioning it back into ATTACHED and
   // syncing the firstNode and lastNode. There are no nodes to throw away
@@ -405,9 +405,9 @@ QUnit.test("removing the last morph makes the mount point empty again", function
 
   assert.equalHTML(rootElement, "<p>hello world</p>");
 
-  morph1.finishAppend();
-  list.finishAppend();
-  root.finishAppend();
+  morph1.commit();
+  list.commit();
+  root.commit();
 
   assertInvariants(assert);
   assert.equalHTML(rootElement, "<p>hello world</p>");
@@ -434,11 +434,11 @@ QUnit.test("multiple nestings is allowed", function(assert) {
   var content = appendingMorph(root, "content");
   list2.appendMorph(content);
   content.setNode(text("hello world"));
-  content.finishAppend();
-  list2.finishAppend();
-  middle.finishAppend();
-  list.finishAppend();
-  root.finishAppend();
+  content.commit();
+  list2.commit();
+  middle.commit();
+  list.commit();
+  root.commit();
 
   assertInvariants(assert);
 
@@ -455,7 +455,7 @@ QUnit.test("multiple nestings is allowed", function(assert) {
   var content2 = appendingMorph(root, "content2");
   list2.appendMorph(content2);
   content2.setNode(text("goodbye world"));
-  content2.finishAppend();
+  content2.commit();
   list2.finishMove();
 
   assertInvariants(assert);
@@ -483,22 +483,22 @@ QUnit.module("Recursively updating firstNode and lastNode", {
     c1 = appendingMorph(root, "c1");
     list2.appendMorph(c1);
     c1.setNode(text("c1"));
-    c1.finishAppend();
+    c1.commit();
 
     c2 = appendingMorph(root, "c2");
     list2.appendMorph(c2);
     c2.setNode(text("c2"));
-    c2.finishAppend();
+    c2.commit();
 
     c3 = appendingMorph(root, "c3");
     list2.appendMorph(c3);
     c3.setNode(text("c3"));
-    c3.finishAppend();
+    c3.commit();
 
-    list2.finishAppend();
-    middle.finishAppend();
-    list.finishAppend();
-    root.finishAppend();
+    list2.commit();
+    middle.commit();
+    list.commit();
+    root.commit();
   }
 });
 
@@ -539,7 +539,7 @@ QUnit.test("prepending a node updates firstNode", function(assert) {
   var c4 = morph("c4").initForAppendingToList(list2);
   list2.insertBeforeMorph(c4, c1);
   c4.setNode(text("c4"));
-  c4.finishAppend();
+  c4.commit();
   list2.finishMove();
 
   assertInvariants(assert);
@@ -551,7 +551,7 @@ QUnit.test("appending a node updates lastNode", function(assert) {
   var c4 = appendingMorph(root, "c4");
   list2.appendMorph(c4);
   c4.setNode(text("c4"));
-  c4.finishAppend();
+  c4.commit();
   list2.finishMove();
 
   assertInvariants(assert);

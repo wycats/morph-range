@@ -28,7 +28,7 @@ QUnit.test('insertBeforeMorph adds a child morph and updates its parentMorph', f
   var bMorph = new Morph(parentMorph.domHelper).initForAppendingToMorph(parentMorph);
   list.appendMorph(bMorph);
   bMorph.setNode(b);
-  bMorph.finishAppend();
+  bMorph.commit();
 
   assert.equalHTML(root, '<div><p>B</p></div>', 'append B');
   assert.strictEqual(list.firstChildMorph, bMorph, 'firstChildMorph to equal B morph');
@@ -37,7 +37,7 @@ QUnit.test('insertBeforeMorph adds a child morph and updates its parentMorph', f
   var dMorph = new Morph(parentMorph.domHelper).initForAppendingToMorph(parentMorph);
   list.appendMorph(dMorph);
   dMorph.setNode(d);
-  dMorph.finishAppend(d);
+  dMorph.commit(d);
 
   assert.equalHTML(root, '<div><p>B</p><p>D</p></div>', 'append D');
   assert.strictEqual(list.firstChildMorph, bMorph, 'firstChildMorph to be unchanged');
@@ -47,7 +47,7 @@ QUnit.test('insertBeforeMorph adds a child morph and updates its parentMorph', f
   var cMorph = new Morph(parentMorph.domHelper).initForAppendingToMorph(parentMorph);
   list.appendMorph(cMorph);
   cMorph.setNode(c);
-  cMorph.finishAppend();
+  cMorph.commit();
 
   assert.equalHTML(root, '<div><p>B</p><p>D</p><p>C</p></div>', 'append C');
   assert.strictEqual(list.firstChildMorph, bMorph, 'firstChildMorph to be unchanged');
@@ -56,14 +56,14 @@ QUnit.test('insertBeforeMorph adds a child morph and updates its parentMorph', f
   var aMorph = new Morph(parentMorph.domHelper).initForAppendingToMorph(parentMorph);
   list.appendMorph(aMorph);
   aMorph.setNode(a);
-  aMorph.finishAppend();
+  aMorph.commit();
 
   assert.equalHTML(root, '<div><p>B</p><p>D</p><p>C</p><p>A</p></div>', 'append A');
   assert.strictEqual(list.firstChildMorph, bMorph, 'firstChildMorph to be unchanged');
   assert.strictEqual(list.lastChildMorph, aMorph, 'lastChildMorph to be A');
 
-  list.finishAppend();
-  parentMorph.finishAppend();
+  list.commit();
+  parentMorph.commit();
 
   assert.strictEqual(parentMorph.firstNode, root.firstChild, 'the parent morph has the right firstNode');
   assert.strictEqual(parentMorph.lastNode, root.lastChild, 'the parent morph has the right lastNode');
