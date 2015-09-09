@@ -24,9 +24,11 @@ QUnit.test('can setContent of a morph', function (assert) {
 
   assert.equalHTML(root, '<p>before <!----> after</p>', 'sanity check');
 
+  morph.expectUpdate();
   morph.clearForRender();
-
   morph.setContent('Hello World');
+  morph.finishAppend();
+
   assert.equalHTML(root, '<p>before Hello World after</p>', 'it updated');
 
   morph.clear();
@@ -39,7 +41,7 @@ QUnit.test('can setContent of a morph', function (assert) {
   assert.equalHTML(el, '<div>\n<p>before Again after</p>\n</div>', 'works after appending to an element');
 
   morph.setContent('');
-  assert.equalHTML(el, '<div>\n<p>before  after</p>\n</div>', 'setting to empty');
+  assert.equalHTML(el, '<div>\n<p>before <!----> after</p>\n</div>', 'setting to empty');
 });
 
 QUnit.test("Appending to a BLANK morph", function(assert) {
